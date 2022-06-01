@@ -24,7 +24,7 @@ class Follow(models.Model):
         ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'authhor'],
+                fields=['user', 'author'],
                 name='unique following'
             )
         ]
