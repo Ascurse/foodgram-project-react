@@ -1,4 +1,5 @@
 from api.pagination import LimitPageNumberPagination
+from api.serializers import FollowSerializer
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -8,7 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Follow
-from .serializers import FollowSerializer
 
 User = get_user_model()
 
