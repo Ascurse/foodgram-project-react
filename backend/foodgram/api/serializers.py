@@ -1,9 +1,8 @@
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-from users.serializers import CustomUserSerializer
 from users.models import Follow
+from users.serializers import CustomUserSerializer
 
 from .models import Ingredient, IngredientAmount, Recipe, Tag
 
@@ -21,7 +20,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='ingredient.id')
+    id = serializers.PrimaryKeyRelatedField(
+        source='ingredient', queryset=Ingredient.objects.all())
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
@@ -30,23 +30,13 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientAmount
         fields = ('id', 'name', 'measurement_unit', 'amount')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=IngredientAmount.objects.all(),
-                fields=['ingredient', 'recipe']
-            )
-        ]
 
 
 class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     tags = TagSerializer(read_only=True, many=True)
     author = CustomUserSerializer(read_only=True)
-    ingredients = IngredientAmountSerializer(
-        source='ingredientamount_set',
-        many=True,
-        read_only=True,
-    )
+    ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
@@ -68,13 +58,18 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
         return Recipe.objects.filter(cart__user=user, id=obj.id).exists()
 
+    def get_ingredients(self, obj):
+        recipe = obj
+        queryset = recipe.recipes_ingredients_list.all()
+        return IngredientAmountSerializer(queryset, many=True).data
+
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError({
                 'ingredients': ('Рецепт должен состоять '
                                 'хотя бы из одного ингредиента!')
-                })
+            })
         ingredient_list = []
         for ingredient_item in ingredients:
             ingredient = get_object_or_404(Ingredient,

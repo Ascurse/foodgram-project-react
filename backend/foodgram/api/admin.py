@@ -25,16 +25,6 @@ class RecipeAdmin(admin.ModelAdmin):
     count_favorites.short_description = 'Число добавлений в избранное'
 
 
-@admin.register(IngredientAmount)
-class IngredientAmountAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Cart)
-class CartAdmin(admin.ModelAdmin):
-    pass
+admin.site.register(Cart)
+admin.site.register(Favorite)
+admin.site.register(IngredientAmount)

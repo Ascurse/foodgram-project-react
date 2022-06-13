@@ -40,19 +40,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True, methods=['get', 'delete'],
+    @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
-        if request.method == 'GET':
+        if request.method == 'POST':
             return self.add_obj(Favorite, request.user, pk)
         elif request.method == 'DELETE':
             return self.delete_obj(Favorite, request.user, pk)
         return None
 
-    @action(detail=True, methods=['get', 'delete'],
+    @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk=None):
-        if request.method == 'GET':
+        if request.method == 'POST':
             return self.add_obj(Cart, request.user, pk)
         elif request.method == 'DELETE':
             return self.delete_obj(Cart, request.user, pk)
@@ -96,7 +96,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def add_obj(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():
             return Response({
-                'errors': 'Рецепт уже добавлен в список'
+                'errors': 'Ошибка! Рецепт уже добавлен в список'
             }, status=status.HTTP_400_BAD_REQUEST)
         recipe = get_object_or_404(Recipe, id=pk)
         model.objects.create(user=user, recipe=recipe)
@@ -109,5 +109,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({
-            'errors': 'Рецепт уже удален'
+            'errors': 'Ошибка! Рецепт уже удален'
         }, status=status.HTTP_400_BAD_REQUEST)

@@ -19,7 +19,9 @@ services:
       - ./.env
 
   frontend:
-    image: ascurse/foodgram_frontend:latest
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
