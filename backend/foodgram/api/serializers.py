@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from users.models import Follow
 from users.serializers import CustomUserSerializer
 
@@ -30,6 +31,12 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientAmount
         fields = ('id', 'name', 'measurement_unit', 'amount')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=IngredientAmount.objects.all(),
+                fields=['ingredient', 'recipe']
+            )
+        ]
 
 
 class RecipeSerializer(serializers.ModelSerializer):
