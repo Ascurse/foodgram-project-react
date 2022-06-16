@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.core import validators
 from django.db import models
+
+from .validators import validate_cooking_time, validate_ingredient_amount
 
 User = get_user_model()
 
@@ -99,10 +100,8 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name='Описание рецепта',
     )
-    cooking_time = models.PositiveIntegerField(
-        validators=(validators.MinValueValidator(
-            1, message='Время приготовление не может быть меньше 1 минуты'
-        ),),
+    cooking_time = models.PositiveSmallIntegerField(
+        validators=[validate_cooking_time],
         verbose_name='Время приготовления в минутах'
     )
 
@@ -118,17 +117,15 @@ class Recipe(models.Model):
 class IngredientAmount(models.Model):
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.CASCADE,
-        related_name='ingredients_in_recipe', verbose_name='Ингредиент'
+        verbose_name='Ингредиент'
     )
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE,
-        related_name='recipes_ingredients_list', verbose_name='Рецепт'
+        verbose_name='Рецепт'
     )
     amount = models.PositiveSmallIntegerField(
-        validators=(
-            validators.MinValueValidator(
-                1, message='Количество ингридиентов не может быть меньше 1'
-            ),),
+        default=1,
+        validators=[validate_ingredient_amount],
         verbose_name='Количество',
     )
 
