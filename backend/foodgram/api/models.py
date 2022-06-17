@@ -138,9 +138,6 @@ class IngredientAmount(models.Model):
                                     name='unique ingredients recipe')
         ]
 
-    def __str__(self):
-        return f'{self.ingredient} - {self.amount}'
-
 
 class Favorite(models.Model):
     user = models.ForeignKey(

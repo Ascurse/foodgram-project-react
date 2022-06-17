@@ -11,12 +11,21 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit', )
-    list_filter = ('name', )
+    search_fields = ['name', 'measurement_unit']
+
+
+class IngredientsInlineAdmin(admin.TabularInline):
+    model = Recipe.ingredients.through
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', )
+    fieldsets = [
+        (None, {'fields': ['tags', 'name',
+                           'author', 'image', 'text', 'cooking_time']}),
+    ]
+    inlines = (IngredientsInlineAdmin,)
+    list_display = ('name', 'author', 'count_favorites')
     list_filter = ('author', 'name', 'tags', )
 
     def count_favorites(self, obj):
